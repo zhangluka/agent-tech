@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input-field {
+  @apply w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200
+         focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30
+         placeholder-zinc-600 transition-colors;
+}
+
+/* React Flow overrides */
+.react-flow__attribution {
+  display: none !important;
+}
