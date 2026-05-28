@@ -1,0 +1,255 @@
+/* ========================================
+   Build An Agent · Warm Editorial Theme
+   混搭：B 的温暖编辑感 + A 的终端动画
+   ======================================== */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ---- VitePress CSS Variable Overrides ---- */
+
+:root {
+  /* Colors */
+  --vp-c-brand-1: #d97757;
+  --vp-c-brand-2: #c6613f;
+  --vp-c-brand-3: #b85535;
+  --vp-c-brand-soft: rgba(217, 119, 87, 0.14);
+
+  --vp-c-bg: #faf9f5;
+  --vp-c-bg-alt: #f0eee6;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #f5f3ed;
+
+  --vp-c-text-1: #141413;
+  --vp-c-text-2: #3d3d3a;
+  --vp-c-text-3: #5e5d59;
+
+  --vp-c-border: #e8e6dc;
+  --vp-c-divider: #e8e6dc;
+  --vp-c-gutter: #e8e6dc;
+
+  --vp-c-green-1: #788c5d;
+  --vp-c-green-soft: rgba(120, 140, 93, 0.14);
+
+  /* Fonts */
+  --vp-font-family-base: 'Source Serif 4', Georgia, 'Noto Serif SC', 'Songti SC', serif;
+  --vp-font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Shadows */
+  --vp-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --vp-shadow-2: 0 3px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --vp-shadow-3: 0 8px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  /* Button radius */
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-bg: #d97757;
+  --vp-button-brand-color: #ffffff;
+  --vp-button-brand-hover-bg: #c6613f;
+  --vp-button-brand-hover-color: #ffffff;
+  --vp-button-brand-active-bg: #b85535;
+
+  /* Nav */
+  --vp-nav-height: 64px;
+}
+
+.dark {
+  --vp-c-bg: #1a1a1a;
+  --vp-c-bg-alt: #222222;
+  --vp-c-text-1: #e8e6dc;
+  --vp-c-text-2: #b3b1ad;
+  --vp-c-text-3: #87867f;
+  --vp-c-border: #3d3d3a;
+}
+
+/* ---- Grain texture overlay ---- */
+.VPLayout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ---- Typography ---- */
+
+/* Nav logo: serif italic */
+.VPNavBarTitle .title {
+  font-family: 'Source Serif 4', Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+}
+
+/* Headings: Inter sans */
+h1, h2, h3, h4, h5, h6,
+.vp-doc h1, .vp-doc h2, .vp-doc h3 {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif !important;
+  letter-spacing: -0.02em;
+}
+
+/* Body text */
+.vp-doc p, .vp-doc li {
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+/* ---- Code blocks ---- */
+.vp-doc div[class*="language-"] {
+  background: #f0eee6 !important;
+  border: 1px solid #e8e6dc;
+  border-radius: 8px;
+}
+
+.vp-doc div[class*="language-"] code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* Inline code */
+.vp-doc :not(pre) > code {
+  background: #f0eee6;
+  color: #d97757;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 400;
+}
+
+/* ---- Sidebar ---- */
+.VPSidebar {
+  border-right: 1px solid #e8e6dc !important;
+}
+
+.VPSidebar .text {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif !important;
+  font-size: 14px;
+}
+
+/* Active sidebar item */
+.VPSidebarItem.is-active > .item > .indicator {
+  background-color: #d97757;
+}
+
+/* ---- Cards / containers ---- */
+.vp-doc .custom-block.tip {
+  border-color: #d97757;
+  background: #faf5f2;
+}
+
+.vp-doc .custom-block.tip .custom-block-title {
+  color: #d97757;
+}
+
+/* ---- Links ---- */
+.vp-doc a {
+  color: #d97757;
+  text-decoration-color: rgba(217, 119, 87, 0.3);
+  text-underline-offset: 3px;
+}
+
+.vp-doc a:hover {
+  text-decoration-color: #d97757;
+}
+
+/* ---- Blockquote ---- */
+.vp-doc blockquote {
+  border-left: 3px solid #d97757;
+  color: #5e5d59;
+  font-style: italic;
+}
+
+/* ---- Doc footer (prev/next) ---- */
+.VPDocFooter .pager .title {
+  font-family: 'Inter', sans-serif;
+  color: #5e5d59;
+}
+
+.VPDocFooter .pager .label {
+  font-family: 'Inter', sans-serif;
+}
+
+/* ---- Buttons ---- */
+.VPButton.brand {
+  background: #d97757 !important;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+.VPButton.brand:hover {
+  background: #c6613f !important;
+}
+
+.VPButton.alt {
+  font-family: 'Inter', sans-serif;
+  border-radius: 6px;
+}
+
+/* ---- Phase cards on home ---- */
+.VPFeature {
+  border: 1px solid #e8e6dc !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.VPFeature:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.VPFeature .title {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  color: #141413 !important;
+}
+
+.VPFeature .details {
+  font-family: 'Source Serif 4', Georgia, serif;
+  color: #5e5d59 !important;
+  font-size: 14px !important;
+  line-height: 1.6;
+}
+
+/* Feature icon bg (phase number colors) */
+.VPFeature:nth-child(1) .icon { background: rgba(120, 140, 93, 0.12); color: #788c5d; }
+.VPFeature:nth-child(2) .icon { background: rgba(106, 155, 204, 0.12); color: #6a9bcc; }
+.VPFeature:nth-child(3) .icon { background: rgba(217, 119, 87, 0.12); color: #d97757; }
+.VPFeature:nth-child(4) .icon { background: rgba(135, 134, 127, 0.12); color: #87867f; }
+
+/* ---- Outline (right side TOC) ---- */
+.VPOutline .outline-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #5e5d59;
+}
+
+.VPOutline .outline-link.active {
+  color: #d97757;
+}
+
+/* ---- Smooth scroll ---- */
+html { scroll-behavior: smooth; }
+
+/* ---- Home hero override ---- */
+.VPHero .name .clip {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em;
+}
+
+.VPHero .text {
+  font-family: 'Source Serif 4', Georgia, serif !important;
+  color: #5e5d59 !important;
+}
+
+.VPHero .tagline {
+  font-family: 'Source Serif 4', Georgia, serif !important;
+  color: #5e5d59 !important;
+  font-size: 18px !important;
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build An Agent · 极简技术白</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: #ffffff;
+    color: #0a0a0a;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 56px; position: sticky; top: 0;
+    background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+    z-index: 100; border-bottom: 1px solid #f0f0f0;
+  }
+  .nav-logo { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+  .nav-links { display: flex; gap: 28px; font-size: 14px; color: #6b7280; align-items: center; }
+  .nav-links a:hover { color: #0a0a0a; }
+  .nav-links .gh { width: 18px; height: 18px; opacity: 0.5; transition: opacity 0.2s; }
+  .nav-links .gh:hover { opacity: 1; }
+  .hero { text-align: center; padding: 120px 56px 80px; }
+  .hero-title { font-size: 64px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 16px; }
+  .hero-sub { font-size: 18px; color: #6b7280; max-width: 480px; margin: 0 auto 40px; line-height: 1.6; }
+  .btn-primary {
+    display: inline-block; background: #635bff; color: #fff;
+    padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 500;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn-primary:hover { background: #5147e5; transform: translateY(-1px); }
+  .phases {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    padding: 0 56px 48px; max-width: 1120px; margin: 0 auto;
+  }
+  .phase-card {
+    border: 1px solid #e5e7eb; border-radius: 12px; padding: 32px 24px 28px;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .phase-card:hover { border-color: #d1d5db; box-shadow: 0 4px 24px rgba(0,0,0,0.04); }
+  .phase-num { font-size: 13px; font-weight: 700; color: #635bff; font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; }
+  .phase-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .phase-desc { font-size: 14px; color: #6b7280; line-height: 1.55; }
+  .phase-chapters { margin-top: 18px; font-size: 12px; color: #9ca3af; font-weight: 500; }
+  .footer {
+    text-align: center; padding: 32px 56px 48px;
+    font-size: 13px; color: #9ca3af; border-top: 1px solid #f0f0f0;
+    max-width: 1120px; margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo">Build An Agent</div>
+  <div class="nav-links">
+    <a href="#">开始阅读</a>
+    <svg class="gh" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+  </div>
+</nav>
+<section class="hero">
+  <h1 class="hero-title">Build An Agent</h1>
+  <p class="hero-sub">从零开始，用代码构建一个真正的 AI Agent</p>
+  <a href="#" class="btn-primary">开始阅读</a>
+</section>
+<section class="phases">
+  <div class="phase-card"><div class="phase-num">01</div><div class="phase-title">最小 Agent</div><div class="phase-desc">API 调用、多轮对话、工具调用、工具路由、结果回流</div><div class="phase-chapters">5 章</div></div>
+  <div class="phase-card"><div class="phase-num">02</div><div class="phase-title">产品化</div><div class="phase-desc">聊天界面、流式输出、Markdown 渲染、状态管理、调用可视化</div><div class="phase-chapters">5 章</div></div>
+  <div class="phase-card"><div class="phase-num">03</div><div class="phase-title">工作流编排</div><div class="phase-desc">可视化画布、自定义节点、连线执行、序列化、执行日志</div><div class="phase-chapters">5 章</div></div>
+  <div class="phase-card"><div class="phase-num">04</div><div class="phase-title">生产级加固</div><div class="phase-desc">权限确认、错误恢复、部署上线</div><div class="phase-chapters">3 章</div></div>
+</section>
+<div class="footer">18 章 · 4 个阶段 · 从终端到生产</div>
+</body>
+</html>

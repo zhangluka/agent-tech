@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build An Agent · 混搭</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Source Serif 4', Georgia, 'Noto Serif SC', serif;
+    background: #faf9f5;
+    color: #141413;
+    line-height: 1.7;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; opacity: 0.025;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* Nav */
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px; border-bottom: 1px solid #e8e6dc;
+    background: #faf9f5; position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic; font-size: 18px; font-weight: 600;
+  }
+  .nav-links {
+    display: flex; gap: 24px;
+    font-family: 'Inter', sans-serif; font-size: 14px; color: #5e5d59;
+  }
+  .nav-links a:hover { color: #d97757; }
+
+  /* Hero: two columns */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 64px 48px 56px;
+    align-items: center;
+  }
+  .hero-text {}
+  .hero-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 48px; font-weight: 700;
+    line-height: 1.12; letter-spacing: -0.03em;
+    margin-bottom: 16px;
+  }
+  .hero-sub {
+    font-size: 19px; color: #5e5d59;
+    max-width: 440px; margin-bottom: 32px; line-height: 1.65;
+  }
+  .hero-actions { display: flex; gap: 16px; align-items: center; }
+  .btn-primary {
+    display: inline-block; background: #d97757; color: #fff;
+    padding: 12px 28px; border-radius: 6px;
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #c6613f; }
+  .btn-secondary {
+    font-family: 'Inter', sans-serif; font-size: 15px;
+    color: #5e5d59; border-bottom: 1px solid #d4d2c8;
+    padding-bottom: 2px; transition: color 0.2s;
+  }
+  .btn-secondary:hover { color: #141413; }
+
+  /* Terminal */
+  .terminal {
+    background: #1a1f2b;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .terminal-bar {
+    background: #252b38;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .terminal-dot.r { background: #ff5f57; }
+  .terminal-dot.y { background: #febc2e; }
+  .terminal-dot.g { background: #28c840; }
+  .terminal-title {
+    flex: 1; text-align: center;
+    font-size: 12px; color: #6b7280;
+    font-family: 'Inter', sans-serif;
+  }
+  .terminal-body {
+    padding: 20px 20px 24px;
+    color: #b3b1ad;
+    min-height: 200px;
+  }
+  .terminal-line { margin-bottom: 4px; }
+  .terminal-line .prompt { color: #d97757; }
+  .terminal-line .cmd { color: #e8e6dc; }
+  .terminal-line .out { color: #788c5d; }
+  .terminal-line .val { color: #e5c07b; }
+  .terminal-line .dim { color: #5e5d59; }
+  #cursor {
+    display: inline-block; width: 8px; height: 16px;
+    background: #d97757; vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Divider */
+  .divider { width: 100%; height: 1px; background: #e8e6dc; }
+
+  /* Phase Cards */
+  .phases {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    padding: 48px 48px 64px; max-width: 1100px; margin: 0 auto;
+  }
+  .phase-card {
+    background: #fff; border: 1px solid #e8e6dc; border-radius: 8px;
+    padding: 28px 24px; transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .phase-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.04); transform: translateY(-2px); }
+  .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px; font-weight: 500; margin-bottom: 12px;
+  }
+  .phase-card:nth-child(1) .phase-num { color: #788c5d; }
+  .phase-card:nth-child(2) .phase-num { color: #6a9bcc; }
+  .phase-card:nth-child(3) .phase-num { color: #d97757; }
+  .phase-card:nth-child(4) .phase-num { color: #87867f; }
+  .phase-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #141413;
+  }
+  .phase-desc { font-size: 14px; color: #5e5d59; line-height: 1.6; }
+  .phase-badge {
+    display: inline-block; margin-top: 14px;
+    font-family: 'Inter', sans-serif; font-size: 12px;
+    color: #87867f; background: #f0eee6; padding: 3px 10px; border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">Build An Agent</div>
+  <div class="nav-links">
+    <a href="#">开始阅读</a>
+    <a href="#">GitHub</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-text">
+    <h1 class="hero-title">从零构建<br>AI Agent</h1>
+    <p class="hero-sub">不是概念讲解，不是源码解读——是跟着做，每一步你手上都有一个能跑的东西。</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">开始阅读</a>
+      <a href="#" class="btn-secondary">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot r"></div>
+      <div class="terminal-dot y"></div>
+      <div class="terminal-dot g"></div>
+      <div class="terminal-title">agent.py</div>
+    </div>
+    <div class="terminal-body" id="terminal"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="phases">
+  <div class="phase-card">
+    <div class="phase-num">01</div>
+    <div class="phase-title">最小 Agent</div>
+    <div class="phase-desc">从 API 调用到工具调用，5 章搭出一个能自主决策的终端 Agent。</div>
+    <span class="phase-badge">5 章</span>
+  </div>
+  <div class="phase-card">
+    <div class="phase-num">02</div>
+    <div class="phase-title">产品化</div>
+    <div class="phase-desc">流式输出、Markdown 渲染、多会话管理，5 章从脚本变成产品。</div>
+    <span class="phase-badge">5 章</span>
+  </div>
+  <div class="phase-card">
+    <div class="phase-num">03</div>
+    <div class="phase-title">工作流编排</div>
+    <div class="phase-desc">React Flow 可视化画布，拖拽搭建工作流。5 章，从对话到流程。</div>
+    <span class="phase-badge">5 章</span>
+  </div>
+  <div class="phase-card">
+    <div class="phase-num">04</div>
+    <div class="phase-title">生产级加固</div>
+    <div class="phase-desc">权限确认、错误恢复、部署上线。3 章，从能用到能上线。</div>
+    <span class="phase-badge">3 章</span>
+  </div>
+</section>
+
+<script>
+(function() {
+  const el = document.getElementById('terminal');
+  const lines = [
+    { type: 'cmd', text: '$ python agent.py', delay: 45 },
+    { type: 'blank' },
+    { type: 'out', text: 'Agent initialized', delay: 30 },
+    { type: 'out', text: 'Model: deepseek-chat', delay: 25 },
+    { type: 'out', text: 'Tools: read_file, list_files, search_files', delay: 25 },
+    { type: 'blank' },
+    { type: 'val', text: '>>> 用一句话解释什么是 Agent。', delay: 30 },
+    { type: 'blank' },
+    { type: 'dim', text: 'Agent 是一个能感知环境、做出决策', delay: 20 },
+    { type: 'dim', text: '并采取行动来完成目标的自主系统。', delay: 20 },
+    { type: 'blank' },
+    { type: 'out', text: 'Status: Ready ✓', delay: 30 },
+  ];
+
+  let i = 0;
+  let charIdx = 0;
+  let currentSpan = null;
+
+  function render() {
+    if (i >= lines.length) {
+      // restart after pause
+      setTimeout(() => { el.innerHTML = ''; i = 0; charIdx = 0; currentSpan = null; render(); }, 2500);
+      return;
+    }
+    const line = lines[i];
+    if (line.type === 'blank') {
+      el.innerHTML += '<div class="terminal-line">&nbsp;</div>';
+      i++; setTimeout(render, 100); return;
+    }
+    if (charIdx === 0) {
+      const div = document.createElement('div');
+      div.className = 'terminal-line';
+      if (line.type === 'cmd') {
+        div.innerHTML = '<span class="prompt">❯ </span>';
+      }
+      currentSpan = document.createElement('span');
+      currentSpan.className = line.type;
+      div.appendChild(currentSpan);
+      el.appendChild(div);
+    }
+    if (charIdx < line.text.length) {
+      currentSpan.textContent += line.text[charIdx];
+      charIdx++;
+      setTimeout(render, line.delay || 30);
+    } else {
+      charIdx = 0; i++;
+      setTimeout(render, 120);
+    }
+  }
+  render();
+})();
+</script>
+
+</body>
+</html>

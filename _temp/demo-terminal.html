@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build An Agent - 从零构建 AI Agent</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg: #0a0e14;
+    --text: #b3b1ad;
+    --accent: #2ea043;
+    --amber: #e5c07b;
+    --blue: #59b8ff;
+    --red: #ff6b6b;
+    --code-bg: #1a1f2b;
+    --card-bg: rgba(26, 31, 43, 0.8);
+    --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(46, 160, 67, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(46, 160, 67, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orb top-right */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(46, 160, 67, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    border-bottom: 1px solid rgba(46, 160, 67, 0.1);
+  }
+
+  .nav-logo {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .nav-logo span {
+    color: var(--text);
+    font-weight: 400;
+    opacity: 0.5;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    transition: color 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-links a:hover {
+    color: var(--accent);
+  }
+
+  .nav-links .github-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-links .github-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text);
+    transition: fill 0.2s;
+  }
+
+  .nav-links .github-icon:hover svg {
+    fill: var(--accent);
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  main {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 48px 32px;
+    gap: 28px;
+  }
+
+  /* ─── TERMINAL ─── */
+  .terminal {
+    width: 560px;
+    background: var(--code-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+      0 4px 24px rgba(0,0,0,0.4),
+      0 0 60px rgba(46, 160, 67, 0.06);
+    border: 1px solid rgba(46, 160, 67, 0.12);
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .terminal-dot.red { background: #ff5f57; }
+  .terminal-dot.yellow { background: #febc2e; }
+  .terminal-dot.green { background: #28c840; }
+
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(179, 177, 173, 0.4);
+    letter-spacing: 1px;
+    margin-right: 44px;
+  }
+
+  .terminal-body {
+    padding: 20px 24px;
+    min-height: 180px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .terminal-line {
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+    white-space: pre;
+  }
+
+  .terminal-line .prompt {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .terminal-line .cmd {
+    color: #e0e0e0;
+  }
+
+  .terminal-line .output {
+    color: var(--text);
+    opacity: 0.7;
+  }
+
+  .terminal-line .highlight {
+    color: var(--amber);
+  }
+
+  .terminal-line .ready {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: var(--accent);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  /* ─── HERO TEXT ─── */
+  .hero-text {
+    text-align: center;
+    max-width: 500px;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+    color: var(--text);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    font-weight: 300;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+  }
+
+  .btn-primary:hover {
+    background: #3fb950;
+    box-shadow: 0 0 20px rgba(46, 160, 67, 0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(46, 160, 67, 0.4);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    background: rgba(46, 160, 67, 0.08);
+  }
+
+  /* ─── PHASE CARDS ─── */
+  .phases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 560px;
+  }
+
+  .phase-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all 0.25s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phase-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+  }
+
+  .phase-card:hover {
+    border-color: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .phase-card.p1::before { background: var(--accent); }
+  .phase-card.p2::before { background: var(--amber); }
+  .phase-card.p3::before { background: var(--blue); }
+  .phase-card.p4::before { background: var(--red); }
+
+  .phase-num {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.9;
+    min-width: 44px;
+  }
+
+  .phase-card.p1 .phase-num { color: var(--accent); }
+  .phase-card.p2 .phase-num { color: var(--amber); }
+  .phase-card.p3 .phase-num { color: var(--blue); }
+  .phase-card.p4 .phase-num { color: var(--red); }
+
+  .phase-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .phase-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e0e0e0;
+    letter-spacing: 0.3px;
+  }
+
+  .phase-desc {
+    font-size: 11px;
+    color: var(--text);
+    opacity: 0.6;
+    line-height: 1.5;
+  }
+
+  .phase-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    opacity: 0.5;
+    width: fit-content;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 16px;
+    font-size: 11px;
+    color: rgba(179, 177, 173, 0.25);
+    border-top: 1px solid rgba(255,255,255,0.03);
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">BUILD AN AGENT <span>// v1.0</span></div>
+    <ul class="nav-links">
+      <li><a href="#">首页</a></li>
+      <li><a href="#">开始阅读</a></li>
+      <li>
+        <a href="#" class="github-icon">
+          <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <!-- Terminal -->
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div>
+        <div class="terminal-dot yellow"></div>
+        <div class="terminal-dot green"></div>
+        <div class="terminal-title">agent.py</div>
+      </div>
+      <div class="terminal-body" id="terminal-body">
+        <!-- Lines injected by JS -->
+      </div>
+    </div>
+
+    <!-- Hero Text -->
+    <div class="hero-text">
+      <p class="hero-subtitle">从零开始，用代码构建一个真正的 AI Agent</p>
+      <div class="hero-buttons">
+        <a href="#" class="btn btn-primary">开始阅读</a>
+        <a href="#" class="btn btn-outline">GitHub</a>
+      </div>
+    </div>
+
+    <!-- Phase Cards -->
+    <div class="phases">
+      <div class="phase-card p1">
+        <div class="phase-num">01</div>
+        <div class="phase-info">
+          <div class="phase-title">基础架构</div>
+          <div class="phase-desc">搭建 Agent 的核心骨架，理解循环与状态管理</div>
+          <div class="phase-badge">6 章</div>
+        </div>
+      </div>
+      <div class="phase-card p2">
+        <div class="phase-num">02</div>
+        <div class="phase-info">
+          <div class="phase-title">工具系统</div>
+          <div class="phase-desc">为 Agent 赋予能力，实现文件读写与代码执行</div>
+          <div class="phase-badge">5 章</div>
+        </div>
+      </div>
+      <div class="phase-card p3">
+        <div class="phase-num">03</div>
+        <div class="phase-info">
+          <div class="phase-title">上下文工程</div>
+          <div class="phase-desc">管理记忆与上下文窗口，让 Agent 拥有长期记忆</div>
+          <div class="phase-badge">4 章</div>
+        </div>
+      </div>
+      <div class="phase-card p4">
+        <div class="phase-num">04</div>
+        <div class="phase-info">
+          <div class="phase-title">生产部署</div>
+          <div class="phase-desc">从玩具到产品：日志、监控、安全与性能优化</div>
+          <div class="phase-badge">5 章</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    BUILD AN AGENT &copy; 2026 &mdash; MIT License
+  </footer>
+
+  <!-- TYPING ANIMATION -->
+  <script>
+    (function () {
+      const body = document.getElementById('terminal-body');
+      const lines = [
+        { prompt: '$ ', cmd: 'python agent.py', type: 'input' },
+        { text: '> Agent initialized', cls: 'output' },
+        { text: '> Model: ', extra: 'deepseek-chat', cls: 'output', hl: 'highlight' },
+        { text: '> Tools: ', extra: 'read_file, list_files, search_files', cls: 'output', hl: 'highlight' },
+        { text: '> Status: ', extra: 'Ready', cls: 'output', hl: 'ready' },
+      ];
+
+      const TYPE_SPEED = 40;       // ms per char for the command line
+      const LINE_DELAY = 300;      // pause before each output line
+      const DISPLAY_TIME = 3000;   // how long to show completed state
+      const RESTART_DELAY = 1500;  // pause before restarting
+
+      function clear() {
+        body.innerHTML = '';
+      }
+
+      function addStaticLine(line) {
+        const div = document.createElement('div');
+        div.className = 'terminal-line';
+        div.style.animation = 'none';
+        div.style.opacity = '1';
+
+        const span = document.createElement('span');
+        span.className = line.cls || 'output';
+        span.textContent = line.text;
+        div.appendChild(span);
+
+        if (line.extra) {
+          const extra = document.createElement('span');
+          extra.className = line.hl || 'output';
+          extra.textContent = line.extra;
+          div.appendChild(extra);
+        }
+
+        body.appendChild(div);
+        return div;
+      }
+
+      async function typeCommand(line) {
+        const div = document.createElement('div');
+        div.className = 'terminal-line';
+        div.style.animation = 'none';
+        div.style.opacity = '1';
+
+        const promptSpan = document.createElement('span');
+        promptSpan.className = 'prompt';
+        promptSpan.textContent = line.prompt;
+        div.appendChild(promptSpan);
+
+        const cmdSpan = document.createElement('span');
+        cmdSpan.className = 'cmd';
+        div.appendChild(cmdSpan);
+
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor-blink';
+        div.appendChild(cursor);
+
+        body.appendChild(div);
+
+        for (let i = 0; i < line.cmd.length; i++) {
+          await sleep(TYPE_SPEED);
+          cmdSpan.textContent += line.cmd[i];
+        }
+
+        // Remove cursor after typing done
+        cursor.remove();
+        return div;
+      }
+
+      function sleep(ms) {
+        return new Promise(r => setTimeout(r, ms));
+      }
+
+      async function runAnimation() {
+        while (true) {
+          clear();
+
+          // Type the command
+          await typeCommand(lines[0]);
+
+          // Show output lines one by one
+          for (let i = 1; i < lines.length; i++) {
+            await sleep(LINE_DELAY);
+            addStaticLine(lines[i]);
+          }
+
+          // Add final cursor
+          const cursorLine = document.createElement('div');
+          cursorLine.className = 'terminal-line';
+          cursorLine.style.animation = 'none';
+          cursorLine.style.opacity = '1';
+          const cursor = document.createElement('span');
+          cursor.className = 'cursor-blink';
+          cursorLine.appendChild(cursor);
+          body.appendChild(cursorLine);
+
+          // Wait, then loop
+          await sleep(DISPLAY_TIME + RESTART_DELAY);
+        }
+      }
+
+      runAnimation();
+    })();
+  </script>
+</body>
+</html>
