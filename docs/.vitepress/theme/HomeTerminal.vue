@@ -94,11 +94,12 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   padding: 0 24px;
+  width: 100%;
 }
 
 .terminal {
-  width: 100%;
-  max-width: 480px;
+  width: 480px;
+  min-width: 480px;
   height: 280px;
   background: #1a1f2b;
   border-radius: 10px;
@@ -142,6 +143,8 @@ onMounted(() => {
   color: #b3b1ad;
   height: calc(280px - 40px);
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 :deep(.terminal-line) {
