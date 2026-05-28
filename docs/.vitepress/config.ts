@@ -1,10 +1,31 @@
 import { defineConfig } from 'vitepress'
 
+// markdown-it plugin: escape {{ }} in inline code to prevent Vue template compilation
+function escapeMustacheInInlineCode(md) {
+  md.core.ruler.after('inline', 'escape-mustache', (state) => {
+    for (const token of state.tokens) {
+      if (token.type === 'inline' && token.children) {
+        for (const child of token.children) {
+          if (child.type === 'code_inline') {
+            child.content = child.content.replace(/\{\{/g, '\\{\\{').replace(/\}\}/g, '\\}\\}')
+          }
+        }
+      }
+    }
+  })
+}
+
 export default defineConfig({
   base: '/agent-tech/',
   lang: 'zh-CN',
   title: 'Build An Agent',
   description: '从零开始，用代码构建一个真正的 AI Agent',
+
+  markdown: {
+    config: (md) => {
+      md.use(escapeMustacheInInlineCode)
+    },
+  },
 
   themeConfig: {
     nav: [
