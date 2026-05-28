@@ -99,6 +99,7 @@ onMounted(() => {
 .terminal {
   width: 100%;
   max-width: 480px;
+  height: 280px;
   background: #1a1f2b;
   border-radius: 10px;
   overflow: hidden;
@@ -139,7 +140,8 @@ onMounted(() => {
   font-size: 13.5px;
   line-height: 1.7;
   color: #b3b1ad;
-  min-height: 220px;
+  height: calc(280px - 40px);
+  overflow: hidden;
 }
 
 :deep(.terminal-line) {
